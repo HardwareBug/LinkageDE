@@ -16,12 +16,12 @@ std::mt19937 MT((unsigned)time(NULL));
 // Parameter of experiment
 const unsigned int EXPERIMENT_NUM = 30;
 const unsigned int MAXIMUM_EVALUATION_NUM = 1000000;
-const unsigned int DEMENTION_NUM = 36;
+const unsigned int DEMENTION_NUM = 24;
 
 // Parameter of evaluation function
 // 0 Through, 1 Type_I, 2 Type_II, 3 Type_III
 const unsigned int EVALUATION_FUNCTION = 2;
-const unsigned int EVALUATION_FUNCTION_T = 8;
+const unsigned int EVALUATION_FUNCTION_T = 2;
 const unsigned int EVALUATION_FUNCTION_L = 20;
 const long double EVALUATION_ALLOWABLE_ERROR = 0.001; // -1 is disable
 // Useage of demention
@@ -281,10 +281,9 @@ void mainloop() {
 			}
 			
 			// Crossover & Evaluation
-			if(linkageFlag == true){
-				// Search Linkage
-				
-				for(unsigned int j = 0; j < POPULATION_SIZE; j++){
+			for(unsigned int j = 0; j < POPULATION_SIZE; j++){
+				if(linkageFlag == true){
+					// Search Linkage
 					for(unsigned int k = 0; k < DEMENTION_NUM; k++){
 						for(unsigned int l = k+1; l < DEMENTION_NUM; l++){
 							Population linkageTempPopulation(3);
@@ -352,90 +351,92 @@ void mainloop() {
 							}
 						}
 					}
-				}
-				// Mirror linkage
-				for(unsigned int j = 0; j < linkage.size(); j++){
-					for(unsigned int k = j+1; k < DEMENTION_NUM; k++){
-						linkage[k][j] = linkage[j][k];
-					}
-				}
-				
-				// Show linkage
-				for(unsigned int j = 0; j < linkage.size(); j++){
-					for(unsigned int k = 0; k < linkage[j].size(); k++){
-						std::cout<<std::fixed<<linkage[j][k]<<" ";
-					}
-					std::cout<<std::endl;
-				}
-				std::cout<<std::endl;
-				
-				// Init dementionGroup
-				dementionGroup.clear();
-				for(unsigned int j = 0; j < DEMENTION_NUM; j++){
-					dementionGroup.push_back(-1);
-				}
-				
-				// Set dementionGroup
-				unsigned int groupID = -1;
-				for(unsigned int j = 0; j < dementionGroup.size(); j++){
-					if(dementionGroup[j] != -1) continue;
-					else groupID++;
-					dementionGroup[j] = groupID;
 					
-					std::vector<unsigned int> searchNumber;
-					searchNumber.push_back(j);
-					while(!searchNumber.empty()){
-						int target;
-						target = searchNumber.back();
-						searchNumber.pop_back();
+					if(evaluation.getCount() >= LINKAGE_EVALUATION_NUM){
+						linkageFlag = false;
 						
-						for(unsigned int k = 0; k < dementionGroup.size(); k++){
-							if(dementionGroup[k] == -1 && linkage[target][k] == true){
-								dementionGroup[k] = groupID;
-								searchNumber.push_back(k);
+						// Mirror linkage
+						for(unsigned int j = 0; j < linkage.size(); j++){
+							for(unsigned int k = j+1; k < DEMENTION_NUM; k++){
+								linkage[k][j] = linkage[j][k];
 							}
 						}
-					}
-				}
-				
-				// Show dementionGroup
-				for(unsigned int j = 0; j < dementionGroup.size(); j++){
-					std::cout<<std::fixed<<dementionGroup[j]<<" ";
-				}
-				std::cout<<std::endl<<std::endl;
-				
-				// Init linkageGroupTable
-				linkageGroupTable.clear();
-				for(unsigned int j = 0; j < DEMENTION_NUM; j++){
-					std::vector<unsigned int> temp(1, j);
-					linkageGroupTable.push_back(temp);
-				}
-				
-				// Make linkageGroupTable
-				linkageGroupTable.clear();
-				for(unsigned int j = 0; j < groupID+1; j++){
-					std::vector<unsigned int> temp;
-					for(unsigned int k = 0; k < dementionGroup.size(); k++){
-						if(dementionGroup[k] == j){
-							temp.push_back(k);
+						
+						// Show linkage
+						for(unsigned int j = 0; j < linkage.size(); j++){
+							for(unsigned int k = 0; k < linkage[j].size(); k++){
+								std::cout<<std::fixed<<linkage[j][k]<<" ";
+							}
+							std::cout<<std::endl;
 						}
+						std::cout<<std::endl;
+						
+						// Init dementionGroup
+						dementionGroup.clear();
+						for(unsigned int j = 0; j < DEMENTION_NUM; j++){
+							dementionGroup.push_back(-1);
+						}
+						
+						// Set dementionGroup
+						unsigned int groupID = -1;
+						for(unsigned int j = 0; j < dementionGroup.size(); j++){
+							if(dementionGroup[j] != -1) continue;
+							else groupID++;
+							dementionGroup[j] = groupID;
+							
+							std::vector<unsigned int> searchNumber;
+							searchNumber.push_back(j);
+							while(!searchNumber.empty()){
+								int target;
+								target = searchNumber.back();
+								searchNumber.pop_back();
+								
+								for(unsigned int k = 0; k < dementionGroup.size(); k++){
+									if(dementionGroup[k] == -1 && linkage[target][k] == true){
+										dementionGroup[k] = groupID;
+										searchNumber.push_back(k);
+									}
+								}
+							}
+						}
+						
+						// Show dementionGroup
+						for(unsigned int j = 0; j < dementionGroup.size(); j++){
+							std::cout<<std::fixed<<dementionGroup[j]<<" ";
+						}
+						std::cout<<std::endl<<std::endl;
+						
+						// Init linkageGroupTable
+						linkageGroupTable.clear();
+						for(unsigned int j = 0; j < DEMENTION_NUM; j++){
+							std::vector<unsigned int> temp(1, j);
+							linkageGroupTable.push_back(temp);
+						}
+						
+						// Make linkageGroupTable
+						linkageGroupTable.clear();
+						for(unsigned int j = 0; j < groupID+1; j++){
+							std::vector<unsigned int> temp;
+							for(unsigned int k = 0; k < dementionGroup.size(); k++){
+								if(dementionGroup[k] == j){
+									temp.push_back(k);
+								}
+							}
+							linkageGroupTable.push_back(temp);
+						}
+						
+						// Show linkageGroupTable
+						for(unsigned int j = 0; j < linkageGroupTable.size(); j++){
+							for(unsigned int k = 0; k < linkageGroupTable[j].size(); k++){
+								std::cout<<linkageGroupTable[j][k]<<" ";
+							}
+							std::cout<<std::endl;
+						}
+						std::cout<<std::endl;
 					}
-					linkageGroupTable.push_back(temp);
-				}
-				
-				// Show linkageGroupTable
-				for(unsigned int j = 0; j < linkageGroupTable.size(); j++){
-					for(unsigned int k = 0; k < linkageGroupTable[j].size(); k++){
-						std::cout<<linkageGroupTable[j][k]<<" ";
-					}
-					std::cout<<std::endl;
-				}
-				std::cout<<std::endl;
-				
-				linkageFlag = false;
-			}else{
-				// Crossover
-				for(unsigned int j = 0; j < POPULATION_SIZE; j++){
+					
+				}else{
+					// Crossover
 					std::uniform_real_distribution<> randomReal(0, 1);
 					std::uniform_int_distribution<> randomInt(0, DEMENTION_NUM-1);
 					int targetLinkageGroup = dementionGroup[randomInt(MT)];
@@ -455,11 +456,10 @@ void mainloop() {
 						}
 					}
 				}
-				
-				// Evaluation
-				tempPopulation = evaluation.done(tempPopulation);
-				if(evaluation.getEndFlag() == true) break;
 			}
+			// Evaluation
+			tempPopulation = evaluation.done(tempPopulation);
+			if(evaluation.getEndFlag() == true) break;
 			
 			// Selection
 			for(unsigned int j = 0; j < POPULATION_SIZE; j++){
